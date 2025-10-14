@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPBD - Badan Penanggulangan Bencana Daerah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/embla-carousel/8.0.0/embla-carousel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%); }
+        .weather-gradient { background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(255, 255, 255, 0.95) 100%); }
+        .carousel-indicator { @apply w-3 h-3 rounded-full bg-white/50 transition-all duration-300 cursor-pointer; }
+        .carousel-indicator.active { @apply bg-orange-500 scale-125; }
+        .btn-primary { @apply bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105; }
+        .btn-secondary { @apply border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300; }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">BP</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">BPBD</h1>
+                        <p class="text-xs text-gray-600">Badan Penanggulangan Bencana Daerah</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#beranda" class="text-gray-700 hover:text-orange-500 transition-colors">Beranda</a>
+                    <a href="#cuaca" class="text-gray-700 hover:text-orange-500 transition-colors">Info Cuaca</a>
+                    <a href="#tentang-kami" class="text-gray-700 hover:text-orange-500 transition-colors">Tentang Kami</a>
+                    <a href="#kontak" class="text-gray-700 hover:text-orange-500 transition-colors">Kontak</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16">
+        <!-- Hero Section -->
+        <section id="beranda" class="relative h-screen overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+                <div class="absolute inset-0 bg-black/40"></div>
+            </div>
+            
+            <div class="relative z-10 flex items-center justify-center h-full px-4">
+                <div class="max-w-4xl mx-auto text-center text-white">
+                    <div class="mb-8">
+                        <div class="inline-flex items-center space-x-2 bg-orange-500/90 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Badan Penanggulangan Bencana Daerah</span>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        Siaga Bencana 24/7
+                    </h1>
+                    
+                    <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
+                        Tim kami siap membantu masyarakat dalam situasi darurat bencana alam kapan saja.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="#kontak" class="btn-primary inline-flex items-center space-x-2">
+                            <span>Hubungi Kami</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </a>
+                        <a href="#tentang-kami" class="btn-secondary">
+                            Pelajari Tentang Kami
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Forecast Section -->
+        <section id="cuaca" class="py-20 weather-gradient">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center space-x-2 bg-orange-500/10 px-4 py-2 rounded-full mb-4">
+                        <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.343 17.657A8 8 0 019 13a8 8 0 019-2.343"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-orange-500">Peringatan Dini Cuaca</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        Informasi Prakiraan Cuaca
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                        Pantau kondisi cuaca terkini untuk antisipasi bencana alam dan keselamatan masyarakat
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Prakiraan 5 Hari</h3>
+                                    <p class="text-sm text-gray-600">Kota Provinsi, Indonesia</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-orange-500">28°C</p>
+                                    <p class="text-sm text-gray-600">Sekarang</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-center">
+                                            <p class="text-sm font-semibold text-gray-900">Senin</p>
+                                            <p class="text-xs text-gray-600">14 Okt</p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-semibold text-gray-900">28°C</p>
+                                                <p class="text-sm text-gray-600">Berawan</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                            </svg>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4a1 1 0 001 1h4a1 1 0 001-1v-4M9 10V9a1 1 0 011-1h4a1 1 0 011 1v1"></path>
+                                            </svg>
+                                            <span>15 km/jam</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-center">
+                                            <p class="text-sm font-semibold text-gray-900">Selasa</p>
+                                            <p class="text-xs text-gray-600">15 Okt</p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 16.05A7.95 7.95 0 0012 12a7.95 7.95 0 00-7 4.05M12 12v9m0-9H9m3 0h3"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-semibold text-gray-900">24°C</p>
+                                                <p class="text-sm text-gray-600">Hujan Ringan</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                            </svg>
+                                            <span>85%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4a1 1 0 001 1h4a1 1 0 001-1v-4M9 10V9a1 1 0 011-1h4a1 1 0 011 1v1"></path>
+                                            </svg>
+                                            <span>20 km/jam</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-500/10 rounded-2xl p-6 border border-orange-500/20">
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-orange-500 rounded-lg p-3">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 mb-2">Peringatan Dini</h4>
+                                    <p class="text-sm text-gray-700">
+                                        Potensi hujan lebat dengan intensitas sedang hingga tinggi di wilayah ini pada hari Selasa dan Jumat. Waspada banjir dan longsor.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="aspect-square bg-gradient-to-br from-orange-500/20 to-orange-500/5 rounded-2xl p-8 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="w-32 h-32 mx-auto mb-6 bg-white rounded-full shadow-lg flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-2">Sistem Monitoring Cuaca</h3>
+                                <p class="text-gray-600 mb-6">
+                                    Data real-time dari stasiun meteorologi untuk peringatan dini bencana alam
+                                </p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                                        <div class="text-2xl font-bold text-orange-500">85%</div>
+                                        <div class="text-sm text-gray-600">Kelembaban</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                                        <div class="text-2xl font-bold text-orange-500">20</div>
+                                        <div class="text-sm text-gray-600">km/jam</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute -top-4 -right-4 bg-white rounded-full p-3 shadow-lg">
+                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.343 17.657A8 8 0 019 13a8 8 0 019-2.343"></path>
+                            </svg>
+                        </div>
+                        <div class="absolute -bottom-4 -left-4 bg-white rounded-full p-3 shadow-lg">
+                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4a1 1 0 001 1h4a1 1 0 001-1v-4M9 10V9a1 1 0 011-1h4a1 1 0 011 1v1"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <a href="#tentang-kami" class="btn-primary inline-flex items-center space-x-2">
+                        <span>Dapatkan Peringatan Cuaca</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="tentang-kami" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center space-x-2 bg-orange-500/10 px-4 py-2 rounded-full mb-4">
+                        <span class="text-sm font-medium text-orange-500">Tentang Kami</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        Sistem Informasi Kebencanaan Kota Kupang
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                        SIncan-KotaKu - Optimalisasi Sistem Layanan pada BPBD Kota Kupang
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-br from-orange-500/10 to-orange-500/5 rounded-2xl p-8 border border-orange-500/20">
+                            <div class="flex items-start space-x-4 mb-6">
+                                <div class="bg-orange-500 rounded-lg p-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Visi Kami</h3>
+                                    <p class="text-gray-700 leading-relaxed">
+                                        Menjadi sistem informasi kebencanaan yang terintegrasi, akurat, dan dapat diandalkan untuk mendukung pengambilan keputusan yang tepat dalam penanggulangan bencana.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-gray-900">Latar Belakang</h3>
+                            <div class="text-gray-700 leading-relaxed space-y-4">
+                                <p>
+                                    Penanganan bencana perlu didukung oleh kemampuan mengumpulkan dan menyediakan data dan informasi yang akurat, sehingga dalam melakukan perencanaan, pelaksanaan maupun antisipasi penanganan bencana dapat dilakukan dengan baik, begitupun informasi yang diberikan atau dikeluarkan untuk masyarakat juga merupakan informasi yang valid dan akurat.
+                                </p>
+                                <p>
+                                    Sampai sekarang, format data dan informasi bencana juga masih beragam, ditambah perkembangan teknologi informasi yang sangat cepat dan telah masuk keberbagai bidang kehidupan, menjadikan jarak, tempat, dan waktu bukan lagi menjadi kendala yang berarti, maka penyebaran informasi kebencanaan yang resmi oleh pemerintah sangat diperlukan untuk menghindari penyebaran informasi yang tidak benar yang dapat menyebabkan kepanikan dimasyarakat.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 rounded-2xl p-8">
+                            <h3 class="text-xl font-bold text-gray-900 mb-4">Regulasi Pendukung</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p class="text-gray-700">Peraturan Presiden nomor 95 tahun 2018 - Sistem Pemerintahan Berbasis Elektronik</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p class="text-gray-700">Peraturan Kepala BNPB nomor 9 Tahun 2013 - Pedoman Pengelolaan Informasi dan Dokumentasi</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p class="text-gray-700">Perka Nomor 8 Tahun 2014 - Pedoman Pengelolaan Teknologi Informasi Kebencanaan</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p class="text-gray-700">Peraturan BNPB Nomor 1 Tahun 2023 - Satu Data Bencana</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-500/10 rounded-2xl p-8 border border-orange-500/20">
+                            <h3 class="text-xl font-bold text-gray-900 mb-4">Sistem Informasi Kebencanaan Kota Kupang</h3>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                Berangkat dari keadaan tersebut di atas, perlu dibuatkan sebuah sistem informasi pada BPBD Kota Kupang sebagai sebuah sarana penyimpanan data dan informasi kebencanaan berbasis digital.
+                            </p>
+                            <p class="text-gray-700 leading-relaxed">
+                                Sistem ini akan menjadi database kebencanaan, sebagai media integrasi bagi pakai data dan informasi, serta media publikasi kepada masyarakat, yang secara keseluruhan merupakan bagian dari Penyelenggaraan Penanggulangan Bencana.
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 text-white">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-bold text-lg">SIncan-KotaKu</h4>
+                                    <p class="text-sm opacity-90">Ver 1.0 ~ copyright bpbdkotakupang@2024</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold">BPBD</div>
+                                    <div class="text-sm opacity-90">Kota Kupang</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">BP</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">BPBD</h3>
+                            <p class="text-sm text-gray-400">Badan Penanggulangan Bencana Daerah</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Melayani masyarakat dalam penanggulangan bencana alam dan keadaan darurat.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Layanan Darurat</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <p>Call Center: 112</p>
+                        <p>Hotline BPBD: (021) 123-4567</p>
+                        <p>Email: info@bpbd.go.id</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Alamat Kantor</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <p>Jl. Pahlawan No. 123</p>
+                        <p>Kota Provinsi, Indonesia</p>
+                        <p>Kode Pos: 12345</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2024 BPBD - Badan Penanggulangan Bencana Daerah. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
