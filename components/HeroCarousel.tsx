@@ -1,75 +1,92 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, AlertTriangle, Shield, Users } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from "react";
+
+import Link from "next/link";
+
+import {
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
+  Shield,
+  Users,
+} from "lucide-react";
 
 interface CarouselSlide {
-  id: number
-  title: string
-  description: string
-  imageUrl: string
-  ctaText: string
-  ctaLink: string
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  ctaText: string;
+  ctaLink: string;
 }
 
 const carouselSlides: CarouselSlide[] = [
   {
     id: 1,
     title: "Siaga Bencana 24/7",
-    description: "Tim kami siap membantu masyarakat dalam situasi darurat bencana alam kapan saja.",
-    imageUrl: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    ctaText: "Hubungi Kami",
-    ctaLink: "#kontak"
+    description:
+      "Tim kami siap membantu masyarakat dalam situasi darurat bencana alam kapan saja.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    ctaText: "Cek Cuaca",
+    ctaLink: "#cuaca",
   },
   {
     id: 2,
     title: "Peringatan Dini Cuaca",
-    description: "Sistem peringatan dini cuaca ekstrem untuk antisipasi bencana alam.",
-    imageUrl: "https://images.unsplash.com/photo-1592210454359-9043f92e38c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    description:
+      "Sistem peringatan dini cuaca ekstrem untuk antisipasi bencana alam.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1433477155337-9aea4e790195?ixlib=rb-4.1.0&auto=format&fit=crop&q=60&w=620",
     ctaText: "Cek Cuaca",
-    ctaLink: "#cuaca"
+    ctaLink: "#cuaca",
   },
   {
     id: 3,
     title: "Edukasi Penanggulangan",
-    description: "Program edukasi untuk masyarakat dalam menghadapi bencana alam.",
-    imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    ctaText: "Pelajari Lebih",
-    ctaLink: "#layanan"
-  }
-]
+    description:
+      "Program edukasi untuk masyarakat dalam menghadapi bencana alam.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    ctaText: "Cek Cuaca",
+    ctaLink: "#cuaca",
+  },
+];
 
 export default function HeroCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length)
-  }, [])
+    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+  }, []);
 
   const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length)
-  }, [])
+    setCurrentSlide(
+      (prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length
+    );
+  }, []);
 
   const goToSlide = useCallback((index: number) => {
-    setCurrentSlide(index)
-  }, [])
+    setCurrentSlide(index);
+  }, []);
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5000)
-    return () => clearInterval(timer)
-  }, [nextSlide])
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, [nextSlide]);
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-[100svh] overflow-hidden">
       <div className="absolute inset-0">
         {carouselSlides.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
+              index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
           >
-            <div 
+            <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${slide.imageUrl})` }}
             />
@@ -83,32 +100,31 @@ export default function HeroCarousel() {
           <div className="mb-8">
             <div className="inline-flex items-center space-x-2 bg-disaster-orange/90 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <AlertTriangle className="w-5 h-5" />
-              <span className="text-sm font-medium">Badan Penanggulangan Bencana Daerah</span>
+              <span className="text-sm font-medium">
+                Badan Penanggulangan Bencana Daerah
+              </span>
             </div>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             {carouselSlides[currentSlide].title}
           </h1>
-          
+
           <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
             {carouselSlides[currentSlide].description}
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
+            <Link
               href={carouselSlides[currentSlide].ctaLink}
               className="btn-primary inline-flex items-center space-x-2"
             >
               <span>{carouselSlides[currentSlide].ctaText}</span>
               <Shield className="w-5 h-5" />
-            </a>
-            <a
-              href="#tentang-kami"
-              className="btn-secondary"
-            >
+            </Link>
+            <Link href="#tentang-kami" className="btn-secondary">
               Pelajari Tentang Kami
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -135,7 +151,7 @@ export default function HeroCarousel() {
             key={index}
             onClick={() => goToSlide(index)}
             className={`carousel-indicator ${
-              index === currentSlide ? 'active' : ''
+              index === currentSlide ? "active" : ""
             }`}
             aria-label={`Slide ${index + 1}`}
           />
@@ -149,5 +165,5 @@ export default function HeroCarousel() {
         </div>
       </div>
     </div>
-  )
+  );
 }

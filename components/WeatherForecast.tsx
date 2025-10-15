@@ -206,16 +206,6 @@ export default function WeatherForecast() {
             </div>
           </div>
         </div>
-
-        <div className="mt-12 text-center">
-          <a
-            href="#tentang-kami"
-            className="btn-primary inline-flex items-center space-x-2"
-          >
-            <span>Dapatkan Peringatan Cuaca</span>
-            <Droplets className="w-5 h-5" />
-          </a>
-        </div>
       </div>
     </section>
   );
