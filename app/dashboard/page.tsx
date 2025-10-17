@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
 import { FileText, Cloud } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,15 +20,29 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+type Latest = { id: string; nama: string[]; createdAt: string };
+
 export default function DashboardHome() {
+  const [total, setTotal] = useState<number>(0);
+  const [latest, setLatest] = useState<Latest[]>([]);
+
+  useEffect(() => {
+    fetch("/api/kejadian/count")
+      .then((r) => r.json())
+      .then((d) => setTotal(d.total));
+    fetch("/api/kejadian/latest")
+      .then((r) => r.json())
+      .then(setLatest);
+  }, []);
+
   const stats = [
     {
       title: "Data Kejadian & Dampak Bencana",
-      value: "24",
-      description: "Total kejadian bencana tahun ini",
+      value: String(total),
+      description: "Total kejadian bencana tercatat",
       icon: FileText,
       color: "bg-disaster-orange",
-      href: "/dashboard/input-kejadian",
+      href: "/dashboard/kejadian",
     },
     {
       title: "Data Prakiraan Cuaca",
@@ -40,48 +54,20 @@ export default function DashboardHome() {
     },
   ];
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: "kejadian",
-      title: "Update Data Banjir Jakarta",
-      timestamp: "2 jam yang lalu",
-      status: "success",
-    },
-    {
-      id: 2,
-      type: "cuaca",
-      title: "Perbarui Prakiraan Cuaca Mingguan",
-      timestamp: "5 jam yang lalu",
-      status: "success",
-    },
-    {
-      id: 3,
-      type: "kejadian",
-      title: "Input Data Tanah Longsor Bandung",
-      timestamp: "1 hari yang lalu",
-      status: "pending",
-    },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="text-disaster-orange font-medium">
-              Beranda
-            </BreadcrumbPage>
-          </BreadcrumbItem>
+          <BreadcrumbPage className="text-disaster-orange font-medium">
+            Beranda
+          </BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Page Header */}
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Dashboard BPBD Kota Kupang</CardTitle>
@@ -91,7 +77,6 @@ export default function DashboardHome() {
         </CardHeader>
       </Card>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -138,71 +123,28 @@ export default function DashboardHome() {
         })}
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Aksi Cepat</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link
-              href="/dashboard/input-kejadian"
-              className="flex items-center justify-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors"
-            >
-              <FileText className="w-5 h-5 text-orange-600 mr-2" />
-              <span className="text-orange-700 font-medium">
-                Input Data Kejadian
-              </span>
-            </Link>
-            <Link
-              href="/dashboard/update-cuaca"
-              className="flex items-center justify-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors"
-            >
-              <Cloud className="w-5 h-5 text-orange-600 mr-2" />
-              <span className="text-orange-700 font-medium">
-                Update Data Cuaca
-              </span>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Activities */}
       <Card>
         <CardHeader>
           <CardTitle>Aktivitas Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentActivities.map((activity) => (
+            {latest.map((l) => (
               <div
-                key={activity.id}
+                key={l.id}
                 className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg"
               >
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    activity.status === "success"
-                      ? "bg-green-500"
-                      : "bg-yellow-500"
-                  }`}
-                ></div>
+                <div className="w-2 h-2 rounded-full bg-green-500" />
                 <div className="flex-1">
                   <h3 className="text-sm font-medium text-gray-900">
-                    {activity.title}
+                    Input: {l.nama.join(", ")}
                   </h3>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(l.createdAt).toLocaleString("id-ID")}
+                  </p>
                 </div>
-                <Badge
-                  variant={
-                    activity.status === "success" ? "default" : "secondary"
-                  }
-                  className={
-                    activity.status === "success"
-                      ? "bg-green-100 text-green-800 hover:bg-green-100"
-                      : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-                  }
-                >
-                  {activity.status === "success" ? "Selesai" : "Dalam Proses"}
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                  Selesai
                 </Badge>
               </div>
             ))}

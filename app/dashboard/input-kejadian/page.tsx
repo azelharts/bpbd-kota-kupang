@@ -1,336 +1,650 @@
 "use client";
 
-import { Calendar, Clock, FileText, MapPin, Save } from "lucide-react";
-import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon, Save, UploadCloud } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+import {
+  jenisList,
+  kecList,
+  kelList,
+  namaList,
+  numericDefaults,
+} from "@/constants/kejadian";
+import { formSchema, FormValues } from "@/lib/schemas/kejadian-schema";
+import { MultiSelect } from "./MultiSelect";
+import {
+  JembatanTable,
+  ManusiaTable,
+  PelayananTable,
+  PrasaranaTable,
+  RumahTable,
+  RusakKiosPabrikTable,
+  RusakPertanianTable,
+} from "./tables";
 
 export default function InputKejadianPage() {
-  const [formData, setFormData] = useState({
-    jenisBencana: "",
-    lokasi: "",
-    tanggal: "",
-    waktu: "",
-    deskripsi: "",
-    korbanJiwa: "",
-    kerugianMaterial: "",
-    status: "dalam penanganan",
+  const [file, setFile] = useState<File | null>(null);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      provinsi: "Nusa Tenggara Timur",
+      kabkota: "Kota Kupang",
+      waktu: "",
+      nama: [] as string[],
+      jenis: [] as string[],
+      kecamatan: [] as string[],
+      kelurahan: [] as string[],
+      geografis: "",
+      sebab: "",
+      kronologis: "",
+      deskripsi: "",
+      sumber: "",
+      kondisi: "",
+      status_darurat: "",
+      upaya: "",
+      sebaran: "",
+      kib: "",
+      dana: "",
+      sdm: "",
+      sarpras: "",
+      logistik: "",
+      alat: "",
+      layanan: "",
+      ...numericDefaults,
+    },
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  async function onSubmit(values: FormValues) {
+    try {
+      const body = new FormData();
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-
-      // Reset form
-      setFormData({
-        jenisBencana: "",
-        lokasi: "",
-        tanggal: "",
-        waktu: "",
-        deskripsi: "",
-        korbanJiwa: "",
-        kerugianMaterial: "",
-        status: "dalam penanganan",
+      Object.entries(values).forEach(([k, v]) => {
+        if (k === "foto") {
+          if (file) body.append("foto", file);
+        } else if (Array.isArray(v)) {
+          body.append(k, JSON.stringify(v));
+        } else if (v instanceof Date) {
+          body.append(k, format(v, "yyyy-MM-dd"));
+        } else {
+          body.append(k, String(v || ""));
+        }
       });
-    }, 1500);
-  };
 
-  const jenisBencanaList = [
-    "Banjir",
-    "Tanah Longsor",
-    "Gempa Bumi",
-    "Kebakaran",
-    "Angin Puting Beliung",
-    "Kekeringan",
-    "Tsunami",
-    "Letusan Gunung Berapi",
-  ];
+      const response = await fetch("/api/kejadian", {
+        method: "POST",
+        body,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menyimpan data");
+      }
+
+      toast.success("Data kejadian berhasil disimpan!");
+      form.reset();
+      setFile(null);
+
+      // Optional: redirect to list page
+      // router.push("/dashboard/kejadian");
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan");
+    }
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Breadcrumb */}
-      <div className="flex items-center space-x-2 text-sm text-gray-500">
+      <div className="text-sm text-muted-foreground flex items-center gap-2">
         <span>Dashboard</span>
         <span>/</span>
-        <span className="text-disaster-orange font-medium">
-          Input Data Kejadian
-        </span>
+        <span className="text-foreground font-medium">Input Data Kejadian</span>
       </div>
 
-      {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="bg-red-500 rounded-lg p-2">
-            <FileText className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Input Data Kejadian Bencana
-            </h1>
-            <p className="text-gray-600">
-              Formulir pelaporan kejadian bencana alam
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {showSuccess && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-green-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <div className="bg-destructive text-white p-2 rounded-lg">
+              <Save className="w-6 h-6" />
             </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">
-                Data kejadian berhasil disimpan!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+            <span>Input Data Kejadian Bencana</span>
+          </CardTitle>
+          <CardDescription>
+            Formulir pelaporan kejadian bencana alam
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* ---------- B.1 ---------- */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>B.1 Data Kejadian Bencana</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="nama"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>1. Nama Kejadian</FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            options={namaList}
+                            onChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Ketik / pilih"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="jenis"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>2. Jenis Kejadian</FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            options={jenisList}
+                            onChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Ketik / pilih"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tanggal"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>3. Tanggal Kejadian</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pilih tanggal</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date > new Date()}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="waktu"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>4. Waktu Kejadian</FormLabel>
+                        <FormControl>
+                          <Input type="time" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="provinsi"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provinsi</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Nusa Tenggara Timur">
+                              Nusa Tenggara Timur
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kabkota"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kabupaten/Kota</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Kota Kupang">
+                              Kota Kupang
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kecamatan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kecamatan</FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            options={kecList}
+                            onChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Ketik / pilih"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kelurahan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kelurahan</FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            options={kelList}
+                            onChange={field.onChange}
+                            defaultValue={field.value}
+                            placeholder="Ketik / pilih"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="geografis"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Letak Geografis</FormLabel>
+                        <FormControl>
+                          <Input placeholder="-10.123, 123.456" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sebab"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>5. Sebab Kejadian</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={3}
+                            placeholder="Penyebab …"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kronologis"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>6. Kronologis Kejadian</FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="deskripsi"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>7. Deskripsi Kejadian</FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>8. Sumber Informasi</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kondisi"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>9. Kondisi Mutakhir</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="status_darurat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>10. Status Darurat</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="upaya"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>11. Upaya</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sebaran"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>12. Sebaran Dampak</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="foto"
+                    render={() => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>13. Foto</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center gap-4">
+                            <Label className="cursor-pointer">
+                              <div className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-accent">
+                                <UploadCloud className="w-4 h-4" />
+                                <span>Pilih file</span>
+                              </div>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={(e) =>
+                                  setFile(e.target.files?.[0] ?? null)
+                                }
+                              />
+                            </Label>
+                            {file && <Badge>{file.name}</Badge>}
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Maks. 5 MB (jpg/png/gif)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kib"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>14. Kode Identitas Bencana (KIB)</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-      {/* Form */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Jenis Bencana */}
-            <div>
-              <label
-                htmlFor="jenisBencana"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Jenis Bencana <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="jenisBencana"
-                name="jenisBencana"
-                value={formData.jenisBencana}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                required
-              >
-                <option value="">Pilih jenis bencana</option>
-                {jenisBencanaList.map((jenis) => (
-                  <option key={jenis} value={jenis}>
-                    {jenis}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* ---------- B.2 ---------- */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>B.2 Data Kebutuhan Bencana</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                  {(
+                    ["dana", "sdm", "sarpras", "logistik", "alat"] as const
+                  ).map((key) => (
+                    <FormField
+                      key={key}
+                      control={form.control}
+                      name={key}
+                      render={({ field }) => (
+                        <FormItem
+                          className={key === "alat" ? "md:col-span-2" : ""}
+                        >
+                          <FormLabel>
+                            {key === "dana" && "1. Dana (Juta)"}
+                            {key === "sdm" && "2. Sumber Daya Manusia"}
+                            {key === "sarpras" && "3. Sarana Prasarana"}
+                            {key === "logistik" && "4. Logistik"}
+                            {key === "alat" && "5. Peralatan"}
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
 
-            {/* Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Status Penanganan <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                required
-              >
-                <option value="dalam penanganan">Dalam Penanganan</option>
-                <option value="selesai">Selesai</option>
-                <option value="dalam evaluasi">Dalam Evaluasi</option>
-              </select>
-            </div>
+              {/* ---------- B.3 – B.7  (tables) ---------- */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>B.3 Data Akibat Terhadap Manusia</CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-x-auto">
+                  <ManusiaTable form={form} />
+                </CardContent>
+              </Card>
 
-            {/* Lokasi */}
-            <div>
-              <label
-                htmlFor="lokasi"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Lokasi Kejadian <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  id="lokasi"
-                  name="lokasi"
-                  value={formData.lokasi}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="Contoh: Jl. Merdeka No. 1, Jakarta"
-                  required
-                />
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    B.4 Data Kerusakan dan Kerugian Sosial Ekonomi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <RusakPertanianTable form={form} />
+                  <RusakKiosPabrikTable form={form} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    B.5 Data Kerusakan dan Kerugian Prasarana & Sarana Vital
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <PrasaranaTable form={form} />
+                  <JembatanTable form={form} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>B.6 Data Kerusakan dan Kerugian Rumah</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RumahTable form={form} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    B.7 Data Kerusakan dan Kerugian Pelayanan Dasar
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PelayananTable form={form} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    B.8 Data Aset dan Layanan Penanganan Kedaruratan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="layanan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Barang yang digunakan untuk melayani penanganan
+                          darurat bencana
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* ---------- Actions ---------- */}
+              <div className="flex gap-4">
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting && (
+                    <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                  )}
+                  Simpan Data
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    form.reset();
+                    setFile(null);
+                  }}
+                >
+                  Reset Form
+                </Button>
               </div>
-            </div>
-
-            {/* Tanggal */}
-            <div>
-              <label
-                htmlFor="tanggal"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Tanggal Kejadian <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="date"
-                  id="tanggal"
-                  name="tanggal"
-                  value={formData.tanggal}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Waktu */}
-            <div>
-              <label
-                htmlFor="waktu"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Waktu Kejadian <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="time"
-                  id="waktu"
-                  name="waktu"
-                  value={formData.waktu}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Korban Jiwa */}
-            <div>
-              <label
-                htmlFor="korbanJiwa"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Jumlah Korban Jiwa
-              </label>
-              <input
-                type="number"
-                id="korbanJiwa"
-                name="korbanJiwa"
-                value={formData.korbanJiwa}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                placeholder="0"
-                min="0"
-              />
-            </div>
-          </div>
-
-          {/* Kerugian Material */}
-          <div>
-            <label
-              htmlFor="kerugianMaterial"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Kerugian Material (Rp)
-            </label>
-            <input
-              type="number"
-              id="kerugianMaterial"
-              name="kerugianMaterial"
-              value={formData.kerugianMaterial}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-              placeholder="0"
-              min="0"
-            />
-          </div>
-
-          {/* Deskripsi */}
-          <div>
-            <label
-              htmlFor="deskripsi"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Deskripsi Kejadian <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="deskripsi"
-              name="deskripsi"
-              value={formData.deskripsi}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-              placeholder="Jelaskan secara detail kejadian bencana..."
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => {
-                setFormData({
-                  jenisBencana: "",
-                  lokasi: "",
-                  tanggal: "",
-                  waktu: "",
-                  deskripsi: "",
-                  korbanJiwa: "",
-                  kerugianMaterial: "",
-                  status: "dalam penanganan",
-                });
-              }}
-              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Reset Form
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary inline-flex items-center space-x-2"
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <Save className="w-5 h-5" />
-              )}
-              <span>{isSubmitting ? "Menyimpan..." : "Simpan Data"}</span>
-            </button>
-          </div>
-        </form>
-      </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
