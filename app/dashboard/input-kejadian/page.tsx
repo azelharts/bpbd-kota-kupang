@@ -9,13 +9,7 @@ import { useForm } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -98,7 +92,7 @@ export default function InputKejadianPage({
       upaya: "",
       sebaran: "",
       kib: "",
-      dana: "",
+      dana: 0,
       sdm: "",
       sarpras: "",
       logistik: "",
@@ -602,7 +596,10 @@ export default function InputKejadianPage({
                             {key === "alat" && "5. Peralatan"}
                           </FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input
+                              type={key === "dana" ? "number" : "text"}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import Link from "next/link";
 
-import { ChevronLeft, ChevronRight, Thermometer, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CarouselSlide {
   id: number;
@@ -20,8 +20,7 @@ const carouselSlides: CarouselSlide[] = [
     id: 1,
     title: "Sincan Kotaku",
     description: "Sistem Informasi Kebencanaan Kota Kupang",
-    imageUrl:
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl: "/slider1.png",
     ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
@@ -29,8 +28,7 @@ const carouselSlides: CarouselSlide[] = [
     id: 2,
     title: "Sincan Kotaku",
     description: "Sistem Informasi Kebencanaan Kota Kupang",
-    imageUrl:
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl: "/slider2.png",
     ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
@@ -38,8 +36,15 @@ const carouselSlides: CarouselSlide[] = [
     id: 3,
     title: "Sincan Kotaku",
     description: "Sistem Informasi Kebencanaan Kota Kupang",
-    imageUrl:
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl: "/slider3.png",
+    ctaText: "Prakiraan Cuaca",
+    ctaLink: "#cuaca",
+  },
+  {
+    id: 4,
+    title: "Sincan Kotaku",
+    description: "Sistem Informasi Kebencanaan Kota Kupang",
+    imageUrl: "/slider4.png",
     ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
@@ -145,13 +150,6 @@ export default function HeroCarousel() {
             aria-label={`Slide ${index + 1}`}
           />
         ))}
-      </div>
-
-      <div className="absolute bottom-8 right-8 z-20">
-        <div className="flex items-center space-x-2 text-white/80 text-sm">
-          <Users className="w-4 h-4" />
-          <span>Siap Melayani 24 Jam</span>
-        </div>
       </div>
     </div>
   );
