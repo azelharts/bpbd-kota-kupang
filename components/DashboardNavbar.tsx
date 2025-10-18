@@ -23,8 +23,8 @@ export default function DashboardNavbar({
   onToggleSidebar,
 }: DashboardNavbarProps) {
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-screen top-0 left-0 z-50 overflow-x-scroll">
-      <div className="max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-[100]">
+      <div className="max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Button

@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-screen overflow-x-hidden">
       {/* Top Navigation - Sticky */}
       <DashboardNavbar
         username={session?.user?.username}
@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div className="flex max-w-screen-2xl mx-auto">
         {/* Sidebar - Desktop */}
-        <div className="hidden lg:block lg:w-64 lg:fixed lg:h-screen">
+        <div className="hidden lg:block lg:w-64 lg:fixed lg:h-screen z-50">
           <DashboardSidebar />
         </div>
 
@@ -70,11 +70,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 w-full">
-          <main className="pt-20 pb-4 px-4 lg:px-0 lg:ml-72 lg:pr-8">
-            {children}
-          </main>
-        </div>
+        <main className="pt-20 pb-4 px-4 lg:pl-72 lg:pr-8 z-30 w-full h-full">
+          {children}
+        </main>
       </div>
     </div>
   );

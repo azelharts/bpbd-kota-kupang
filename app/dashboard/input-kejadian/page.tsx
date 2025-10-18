@@ -160,7 +160,7 @@ export default function InputKejadianPage({
   }
 
   return (
-    <div className="mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Breadcrumb */}
       {!initialData && (
         <Breadcrumb>
@@ -176,7 +176,7 @@ export default function InputKejadianPage({
         </Breadcrumb>
       )}
 
-      <Card className="border-none shadow-none">
+      <Card className="!border-none !shadow-none">
         {!initialData && (
           <CardHeader>
             <CardTitle className="flex items-center gap-3">

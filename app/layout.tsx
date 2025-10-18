@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={inter.className}>
+      <body className={`${inter.className} overflow-x-hidden`}>
         <SessionProvider>
           <main className="">{children}</main>
         </SessionProvider>
