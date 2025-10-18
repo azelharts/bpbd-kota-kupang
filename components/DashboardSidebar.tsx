@@ -33,7 +33,7 @@ export default function DashboardSidebar({
 
   return (
     <div className="h-full bg-white border-r">
-      <div className="pt-16 px-3">
+      <div className="pt-16">
         <nav className="mt-5 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -44,7 +44,7 @@ export default function DashboardSidebar({
                 href={item.href}
                 onClick={onLinkClick}
                 className={cn(
-                  "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  "group flex items-center px-4 sm:px-6 lg:px-8 py-2 text-sm font-medium rounded-md transition-colors",
                   "text-gray-700 hover:text-disaster-orange hover:bg-disaster-orange/10",
                   isActive && "text-disaster-orange bg-disaster-orange/10"
                 )}

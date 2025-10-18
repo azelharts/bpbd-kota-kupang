@@ -22,7 +22,7 @@ const baseSchema = z.object({
   deskripsi: z.string(),
   sumber: z.string(),
   kondisi: z.string(),
-  status_darurat: z.string().min(1, "Status darurat wajib diisi"),
+  statusDarurat: z.string().min(1, "Status darurat wajib diisi"),
   upaya: z.string(),
   sebaran: z.string(),
   kib: z.string(),

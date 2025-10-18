@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       deskripsi: (formData.get("deskripsi") as string) || null,
       sumber: (formData.get("sumber") as string) || null,
       kondisi: (formData.get("kondisi") as string) || null,
-      statusDarurat: formData.get("status_darurat") as string,
+      statusDarurat: formData.get("statusDarurat") as string,
       upaya: (formData.get("upaya") as string) || null,
       sebaran: (formData.get("sebaran") as string) || null,
       fotoUrl,

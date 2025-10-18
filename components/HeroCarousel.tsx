@@ -1,16 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Link from "next/link";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
-  Shield,
-  Users,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Thermometer, Users } from "lucide-react";
 
 interface CarouselSlide {
   id: number;
@@ -24,32 +18,29 @@ interface CarouselSlide {
 const carouselSlides: CarouselSlide[] = [
   {
     id: 1,
-    title: "Siaga Bencana 24/7",
-    description:
-      "Tim kami siap membantu masyarakat dalam situasi darurat bencana alam kapan saja.",
+    title: "Sincan Kotaku",
+    description: "Sistem Informasi Kebencanaan Kota Kupang",
     imageUrl:
       "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    ctaText: "Cek Cuaca",
+    ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
   {
     id: 2,
-    title: "Peringatan Dini Cuaca",
-    description:
-      "Sistem peringatan dini cuaca ekstrem untuk antisipasi bencana alam.",
+    title: "Sincan Kotaku",
+    description: "Sistem Informasi Kebencanaan Kota Kupang",
     imageUrl:
-      "https://images.unsplash.com/photo-1433477155337-9aea4e790195?ixlib=rb-4.1.0&auto=format&fit=crop&q=60&w=620",
-    ctaText: "Cek Cuaca",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
   {
     id: 3,
-    title: "Edukasi Penanggulangan",
-    description:
-      "Program edukasi untuk masyarakat dalam menghadapi bencana alam.",
+    title: "Sincan Kotaku",
+    description: "Sistem Informasi Kebencanaan Kota Kupang",
     imageUrl:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    ctaText: "Cek Cuaca",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    ctaText: "Prakiraan Cuaca",
     ctaLink: "#cuaca",
   },
 ];
@@ -97,21 +88,20 @@ export default function HeroCarousel() {
 
       <div className="relative z-10 flex items-center justify-center h-full px-4">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <div className="mb-8">
-            <div className="inline-flex items-center space-x-2 bg-disaster-orange/90 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <AlertTriangle className="w-5 h-5" />
+          <div className="mb-6">
+            <div className="inline-flex items-center space-x-2 border-2 border-disaster-orange/90 px-4 py-2 rounded-full">
               <span className="text-sm font-medium">
                 Badan Penanggulangan Bencana Daerah
               </span>
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-8xl font-bold mb-2 leading-tight">
             {carouselSlides[currentSlide].title}
           </h1>
 
-          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
-            {carouselSlides[currentSlide].description}
+          <p className="md:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+            --{carouselSlides[currentSlide].description}--
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -120,10 +110,9 @@ export default function HeroCarousel() {
               className="btn-primary inline-flex items-center space-x-2"
             >
               <span>{carouselSlides[currentSlide].ctaText}</span>
-              <Shield className="w-5 h-5" />
             </Link>
-            <Link href="#tentang-kami" className="btn-secondary">
-              Pelajari Tentang Kami
+            <Link href="#tentang-kami" className="btn-primary">
+              Tentang Kami
             </Link>
           </div>
         </div>

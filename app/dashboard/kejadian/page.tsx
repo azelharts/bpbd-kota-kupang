@@ -14,6 +14,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 type Kejadian = {
   id: string;
@@ -46,7 +54,19 @@ export default function KejadianPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbPage className="text-disaster-orange font-medium">
+            Daftar Kejadian Bencana
+          </BreadcrumbPage>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Daftar Kejadian Bencana</h1>
         <Button onClick={() => router.push("/dashboard/input-kejadian")}>
@@ -76,15 +96,6 @@ export default function KejadianPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => router.push(`/dashboard/kejadian/${k.id}`)}
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    router.push(`/dashboard/kejadian/${k.id}/edit`)
-                  }
                 >
                   <Edit className="w-4 h-4" />
                 </Button>

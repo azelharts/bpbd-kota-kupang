@@ -27,4 +27,12 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   });
 }
 
+export async function destroyFromCloudinary(secureUrl: string) {
+  // extract public_id from full url
+  const parts = secureUrl.split("/");
+  const last = parts.pop() as string;
+  const publicId = `kejadian-bencana/${last.split(".")[0]}`;
+  return cloudinary.uploader.destroy(publicId);
+}
+
 export default cloudinary;

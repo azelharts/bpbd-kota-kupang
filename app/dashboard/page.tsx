@@ -1,24 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FileText, Cloud } from "lucide-react";
-import Link from "next/link";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Cloud, FileText } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type Latest = { id: string; nama: string[]; createdAt: string };
 
@@ -59,12 +57,13 @@ export default function DashboardHome() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            <BreadcrumbLink
+              href="/dashboard"
+              className="text-disaster-orange font-medium"
+            >
+              Dashboard
+            </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbPage className="text-disaster-orange font-medium">
-            Beranda
-          </BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
 

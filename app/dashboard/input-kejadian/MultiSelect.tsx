@@ -58,13 +58,6 @@ export function MultiSelect({
               ? selected.map((s) => (
                   <Badge key={s} variant="secondary" className="gap-1 pr-1.5">
                     {s}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleItem(s);
-                      }}
-                    />
                   </Badge>
                 ))
               : placeholder}

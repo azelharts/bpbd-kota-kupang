@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen w-full">
       {/* Top Navigation - Sticky */}
       <DashboardNavbar
         username={session?.user?.username}
@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <>
             {/* Overlay */}
             <div
-              className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+              className="fixed inset-0 z-40 bg-black/50  w-full opacity-75 lg:hidden"
               onClick={closeSidebar}
             ></div>
 
@@ -70,8 +70,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 w-full lg:ml-64">
-          <main className="px-4 lg:px-8 py-6 pt-20">{children}</main>
+        <div className="flex-1 w-full">
+          <main className="pt-20 pb-4 px-4 lg:px-0 lg:ml-72 lg:pr-8">
+            {children}
+          </main>
         </div>
       </div>
     </div>

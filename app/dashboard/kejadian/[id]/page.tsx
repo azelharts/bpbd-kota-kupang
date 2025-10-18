@@ -1,88 +1,92 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Loader2, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Edit } from "lucide-react";
-import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Kejadian = Record<string, any>;
+/* ---------- import the SAME giant form ---------- */
+import InputKejadianPage from "@/app/dashboard/input-kejadian/page";
+import { FormValues } from "@/lib/schemas/kejadian-schema";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-export default function ViewKejadianPage() {
-  const router = useRouter();
+export default function ViewEditKejadianPage() {
   const params = useParams() as { id: string };
-  const [data, setData] = useState<Kejadian | null>(null);
+  const router = useRouter();
+  const [initial, setInitial] = useState<FormValues | null>(null);
 
+  /* ---------- load once ---------- */
   useEffect(() => {
     fetch(`/api/kejadian/${params.id}`)
       .then((r) => r.json())
-      .then(setData);
+      .then((d) =>
+        setInitial({
+          ...d,
+          tanggal: new Date(d.tanggal), // string -> Date
+        })
+      );
   }, [params.id]);
 
-  if (!data)
+  if (!initial)
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-1/3" />
-        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-96 w-full" />
       </div>
     );
 
+  /* ---------- delete handler ---------- */
+  const hapus = async () => {
+    if (!confirm("Yakin ingin menghapus kejadian ini?")) return;
+    const res = await fetch(`/api/kejadian/${params.id}`, { method: "DELETE" });
+    if (res.ok) {
+      toast.success("Kejadian dihapus");
+      router.push("/dashboard/kejadian");
+    } else toast.error("Gagal menghapus");
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.back()}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => router.push(`/dashboard/kejadian/${data.id}/edit`)}
-        >
-          <Edit className="w-4 h-4 mr-2" /> Edit
+    <div className="space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/kejadian">
+              Daftar Kejadian Bencana
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbPage className="text-disaster-orange font-medium">
+            {params.id}
+          </BreadcrumbPage>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Edit Kejadian</h1>
+        <Button variant="destructive" size="sm" onClick={hapus}>
+          <Trash className="w-4 h-4 mr-2" /> Hapus Kejadian
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Detail Kejadian</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm">
-          <Row label="Nama Kejadian" val={data.nama.join(", ")} />
-          <Row label="Jenis" val={data.jenis.join(", ")} />
-          <Row label="Tanggal" val={format(new Date(data.tanggal), "PPP")} />
-          <Row label="Waktu" val={data.waktu} />
-          <Row label="Kecamatan" val={data.kecamatan.join(", ")} />
-          <Row label="Kelurahan" val={data.kelurahan.join(", ")} />
-          <Row label="Letak Geografis" val={data.geografis} />
-          <Row label="Sebab" val={data.sebab} />
-          <Row label="Kronologis" val={data.kronologis} />
-          <Row label="Deskripsi" val={data.deskripsi} />
-          <Row label="Status Darurat" val={data.statusDarurat} />
-          {data.fotoUrl && (
-            <Row
-              label="Foto"
-              val={
-                <img
-                  src={data.fotoUrl}
-                  alt="Foto kejadian"
-                  className="w-full max-w-md rounded"
-                />
-              }
-            />
-          )}
-        </CardContent>
+      {/* the full input form, now in EDIT mode */}
+      <Card className="py-6">
+        <InputKejadianPage initialData={initial} />
       </Card>
-    </div>
-  );
-}
-
-function Row({ label, val }: { label: string; val: React.ReactNode }) {
-  if (!val) return null;
-  return (
-    <div className="flex justify-between border-b pb-2">
-      <span className="font-medium text-gray-700">{label}</span>
-      <span className="text-gray-900">{val}</span>
     </div>
   );
 }

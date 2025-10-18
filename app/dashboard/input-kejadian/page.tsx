@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon, Save, UploadCloud } from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, FileText, UploadCloud, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,14 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
   jenisList,
   kecList,
   kelList,
@@ -51,6 +59,7 @@ import {
   numericDefaults,
 } from "@/constants/kejadian";
 import { formSchema, FormValues } from "@/lib/schemas/kejadian-schema";
+import { useRouter } from "next/navigation";
 import { MultiSelect } from "./MultiSelect";
 import {
   JembatanTable,
@@ -62,12 +71,16 @@ import {
   RusakPertanianTable,
 } from "./tables";
 
-export default function InputKejadianPage() {
+export default function InputKejadianPage({
+  initialData,
+}: { initialData?: any } = {}) {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialData ?? {
       provinsi: "Nusa Tenggara Timur",
       kabkota: "Kota Kupang",
       waktu: "",
@@ -81,7 +94,7 @@ export default function InputKejadianPage() {
       deskripsi: "",
       sumber: "",
       kondisi: "",
-      status_darurat: "",
+      statusDarurat: "",
       upaya: "",
       sebaran: "",
       kib: "",
@@ -95,39 +108,57 @@ export default function InputKejadianPage() {
     },
   });
 
+  // Set initial preview if editing existing data
+  useEffect(() => {
+    if (initialData?.fotoUrl) {
+      setPreviewUrl(initialData.fotoUrl);
+    }
+  }, [initialData]);
+
+  // Handle file selection and preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  // Clear image preview
+  const clearImage = () => {
+    setFile(null);
+    setPreviewUrl("");
+  };
+
   async function onSubmit(values: FormValues) {
     try {
       const body = new FormData();
-
       Object.entries(values).forEach(([k, v]) => {
         if (k === "foto") {
           if (file) body.append("foto", file);
         } else if (Array.isArray(v)) {
           body.append(k, JSON.stringify(v));
-        } else if (v instanceof Date) {
+        } else if ((v as any) instanceof Date) {
           body.append(k, format(v, "yyyy-MM-dd"));
         } else {
-          body.append(k, String(v || ""));
+          body.append(k, String(v ?? ""));
         }
       });
 
-      const response = await fetch("/api/kejadian", {
-        method: "POST",
-        body,
-      });
+      const url = initialData
+        ? `/api/kejadian/${initialData.id}`
+        : "/api/kejadian";
+      const method = initialData ? "PUT" : "POST";
 
-      const result = await response.json();
+      const res = await fetch(url, { method, body });
+      if (!res.ok) throw new Error("Gagal menyimpan");
 
-      if (!response.ok) {
-        throw new Error(result.error || "Gagal menyimpan data");
-      }
-
-      toast.success("Data kejadian berhasil disimpan!");
-      form.reset();
-      setFile(null);
-
-      // Optional: redirect to list page
-      // router.push("/dashboard/kejadian");
+      toast.success(initialData ? "Data diperbarui!" : "Data tersimpan!");
+      router.push("/dashboard/kejadian");
     } catch (error) {
       console.error("Submit error:", error);
       toast.error(error instanceof Error ? error.message : "Terjadi kesalahan");
@@ -135,26 +166,41 @@ export default function InputKejadianPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Breadcrumb */}
-      <div className="text-sm text-muted-foreground flex items-center gap-2">
-        <span>Dashboard</span>
-        <span>/</span>
-        <span className="text-foreground font-medium">Input Data Kejadian</span>
-      </div>
+      {!initialData && (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbPage className="text-disaster-orange font-medium">
+              Input Data Kejadian
+            </BreadcrumbPage>
+          </BreadcrumbList>
+        </Breadcrumb>
+      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="bg-destructive text-white p-2 rounded-lg">
-              <Save className="w-6 h-6" />
-            </div>
-            <span>Input Data Kejadian Bencana</span>
-          </CardTitle>
-          <CardDescription>
-            Formulir pelaporan kejadian bencana alam
-          </CardDescription>
-        </CardHeader>
+      <Card className="border-none shadow-none">
+        {!initialData && (
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="bg-disaster-orange text-white p-2 rounded-lg">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col gap-y-1">
+                <span className="text-2xl font-bold text-gray-900">
+                  Input Data Kejadian
+                </span>
+                <span className="text-gray-600 font-normal">
+                  Formulir pelaporan kejadian bencana alam
+                </span>
+              </div>
+            </CardTitle>
+          </CardHeader>
+        )}
+
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -163,7 +209,7 @@ export default function InputKejadianPage() {
                 <CardHeader>
                   <CardTitle>B.1 Data Kejadian Bencana</CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
+                <CardContent className="grid gap-4 md:grid-cols-2 overflow-x-scroll">
                   <FormField
                     control={form.control}
                     name="nama"
@@ -174,7 +220,7 @@ export default function InputKejadianPage() {
                           <MultiSelect
                             options={namaList}
                             onChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={initialData && field.value}
                             placeholder="Ketik / pilih"
                           />
                         </FormControl>
@@ -192,7 +238,7 @@ export default function InputKejadianPage() {
                           <MultiSelect
                             options={jenisList}
                             onChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={initialData && field.value}
                             placeholder="Ketik / pilih"
                           />
                         </FormControl>
@@ -228,7 +274,7 @@ export default function InputKejadianPage() {
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
-                              selected={field.value}
+                              selected={initialData && field.value}
                               onSelect={field.onChange}
                               disabled={(date) => date > new Date()}
                               initialFocus
@@ -261,6 +307,7 @@ export default function InputKejadianPage() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -286,6 +333,7 @@ export default function InputKejadianPage() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -312,7 +360,7 @@ export default function InputKejadianPage() {
                           <MultiSelect
                             options={kecList}
                             onChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={initialData && field.value}
                             placeholder="Ketik / pilih"
                           />
                         </FormControl>
@@ -330,7 +378,7 @@ export default function InputKejadianPage() {
                           <MultiSelect
                             options={kelList}
                             onChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={initialData && field.value}
                             placeholder="Ketik / pilih"
                           />
                         </FormControl>
@@ -422,7 +470,7 @@ export default function InputKejadianPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="status_darurat"
+                    name="statusDarurat"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>10. Status Darurat</FormLabel>
@@ -466,22 +514,44 @@ export default function InputKejadianPage() {
                       <FormItem className="md:col-span-2">
                         <FormLabel>13. Foto</FormLabel>
                         <FormControl>
-                          <div className="flex items-center gap-4">
-                            <Label className="cursor-pointer">
-                              <div className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-accent">
-                                <UploadCloud className="w-4 h-4" />
-                                <span>Pilih file</span>
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                              <Label className="cursor-pointer">
+                                <div className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-accent">
+                                  <UploadCloud className="w-4 h-4" />
+                                  <span>Pilih file</span>
+                                </div>
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  className="sr-only"
+                                  onChange={handleFileChange}
+                                />
+                              </Label>
+                              {file && <Badge>{file.name}</Badge>}
+                            </div>
+
+                            {/* Image Preview */}
+                            {previewUrl && (
+                              <div className="relative w-full">
+                                <img
+                                  src={previewUrl}
+                                  alt="Preview"
+                                  className="w-full h-auto rounded-lg border shadow-sm"
+                                />
+                                {!initialData && (
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-2 right-2"
+                                    onClick={clearImage}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                )}
                               </div>
-                              <Input
-                                type="file"
-                                accept="image/*"
-                                className="sr-only"
-                                onChange={(e) =>
-                                  setFile(e.target.files?.[0] ?? null)
-                                }
-                              />
-                            </Label>
-                            {file && <Badge>{file.name}</Badge>}
+                            )}
                           </div>
                         </FormControl>
                         <FormDescription>
@@ -532,7 +602,7 @@ export default function InputKejadianPage() {
                             {key === "alat" && "5. Peralatan"}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input type="number" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -547,7 +617,7 @@ export default function InputKejadianPage() {
                 <CardHeader>
                   <CardTitle>B.3 Data Akibat Terhadap Manusia</CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-x-auto">
+                <CardContent className="overflow-x-scroll">
                   <ManusiaTable form={form} />
                 </CardContent>
               </Card>
@@ -558,7 +628,7 @@ export default function InputKejadianPage() {
                     B.4 Data Kerusakan dan Kerugian Sosial Ekonomi
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 overflow-x-scroll">
                   <RusakPertanianTable form={form} />
                   <RusakKiosPabrikTable form={form} />
                 </CardContent>
@@ -570,7 +640,7 @@ export default function InputKejadianPage() {
                     B.5 Data Kerusakan dan Kerugian Prasarana & Sarana Vital
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 overflow-x-scroll">
                   <PrasaranaTable form={form} />
                   <JembatanTable form={form} />
                 </CardContent>
@@ -580,7 +650,7 @@ export default function InputKejadianPage() {
                 <CardHeader>
                   <CardTitle>B.6 Data Kerusakan dan Kerugian Rumah</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-x-scroll">
                   <RumahTable form={form} />
                 </CardContent>
               </Card>
@@ -591,7 +661,7 @@ export default function InputKejadianPage() {
                     B.7 Data Kerusakan dan Kerugian Pelayanan Dasar
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-x-scroll">
                   <PelayananTable form={form} />
                 </CardContent>
               </Card>
@@ -623,22 +693,27 @@ export default function InputKejadianPage() {
               </Card>
 
               {/* ---------- Actions ---------- */}
-              <div className="flex gap-4">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && (
-                    <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
-                  )}
-                  Simpan Data
-                </Button>
+              <div className="flex justify-end flex-wrap gap-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => {
                     form.reset();
                     setFile(null);
+                    setPreviewUrl("");
                   }}
                 >
-                  Reset Form
+                  {initialData ? "Batalkan Perubahan" : "Reset Form"}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="bg-disaster-orange"
+                >
+                  {form.formState.isSubmitting && (
+                    <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                  )}
+                  {initialData ? "Simpan Perubahan" : "Simpan Data"}
                 </Button>
               </div>
             </form>

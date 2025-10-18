@@ -1,9 +1,13 @@
 "use client";
 
 import React from "react";
+
+import Image from "next/image";
 import Link from "next/link";
-import { LogOut, Menu, X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
+import { LogOut, Menu, X } from "lucide-react";
 
 interface DashboardNavbarProps {
   username?: string;
@@ -19,8 +23,8 @@ export default function DashboardNavbar({
   onToggleSidebar,
 }: DashboardNavbarProps) {
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-50">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-screen top-0 left-0 z-50 overflow-x-scroll">
+      <div className="max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Button
@@ -36,12 +40,15 @@ export default function DashboardNavbar({
               )}
             </Button>
             <Link href="/" className="flex items-center space-x-3 ml-4 lg:ml-0">
-              <div className="w-8 h-8 bg-disaster-orange rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">BP</span>
+              <div className="w-10 h-10 flex items-center justify-center relative">
+                <Image
+                  src="/assets/logo-bpbd.png"
+                  fill
+                  alt="logo bpbd"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
-              <h1 className="text-lg font-bold text-gray-900">
-                Dashboard BPBD
-              </h1>
+              <h1 className="text-lg font-bold text-gray-900">BPBD</h1>
             </Link>
           </div>
 

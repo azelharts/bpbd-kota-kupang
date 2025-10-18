@@ -1,6 +1,7 @@
 // app/api/kejadian/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { destroyFromCloudinary } from "@/lib/cloudinary";
 
 /* ---------- GET single kejadian ---------- */
 export async function GET(
@@ -40,7 +41,7 @@ export async function PUT(
     deskripsi: (formData.get("deskripsi") as string) || null,
     sumber: (formData.get("sumber") as string) || null,
     kondisi: (formData.get("kondisi") as string) || null,
-    statusDarurat: formData.get("status_darurat") as string,
+    statusDarurat: formData.get("statusDarurat") as string,
     upaya: (formData.get("upaya") as string) || null,
     sebaran: (formData.get("sebaran") as string) || null,
     kib: (formData.get("kib") as string) || null,
@@ -57,21 +58,46 @@ export async function PUT(
 
   // handle new photo if uploaded
   const foto = formData.get("foto") as File | null;
-  if (foto) data.fotoUrl = await uploadToCloudinary(foto);
+  if (foto) {
+    // Fetch existing record to get current fotoUrl
+    const existing = await prisma.kejadian.findUnique({
+      where: { id: params.id },
+      select: { fotoUrl: true },
+    });
+
+    // Delete old image from Cloudinary if it exists
+    if (existing?.fotoUrl) {
+      await destroyFromCloudinary(existing.fotoUrl);
+    }
+
+    // Upload new image
+    data.fotoUrl = await uploadToCloudinary(foto);
+  }
 
   const updated = await prisma.kejadian.update({
     where: { id: params.id },
     data,
   });
+
   return NextResponse.json(updated);
 }
 
 /* ---------- DELETE ---------- */
 export async function DELETE(
-  _: NextRequest,
+  _: Request,
   { params }: { params: { id: string } }
 ) {
+  const row = await prisma.kejadian.findUnique({
+    where: { id: params.id },
+    select: { fotoUrl: true },
+  });
+
+  /* 1. delete image from Cloudinary if exists */
+  if (row?.fotoUrl) await destroyFromCloudinary(row.fotoUrl);
+
+  /* 2. delete record from DB */
   await prisma.kejadian.delete({ where: { id: params.id } });
+
   return NextResponse.json({ success: true });
 }
 
