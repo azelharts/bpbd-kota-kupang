@@ -13,8 +13,6 @@ import { Thermometer } from "lucide-react";
 export default function WeatherForecast() {
   const [weatherData, setWeatherData] = useState<Cuaca>();
 
-  console.log("existingDataId", weatherData);
-
   useEffect(() => {
     const loadCuacaData = async () => {
       try {
@@ -53,7 +51,7 @@ export default function WeatherForecast() {
         </div>
 
         {weatherData?.fotoUrl && (
-          <div className="relative w-full lg:max-w-7xl h-[800px]">
+          <div className="relative w-full lg:max-w-7xl h-[400px] lg:h-[800px]">
             <Image
               src={weatherData.fotoUrl}
               alt={weatherData.namaPrakiraan}

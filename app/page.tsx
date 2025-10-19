@@ -18,7 +18,7 @@ export default function Home() {
 
       <WeatherForecast />
 
-      <section id="tentang-kami" className="py-20 bg-white">
+      <section id="tentang-kami" className="lg:py-20 pt-0 pb-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-flex items-center space-x-2 bg-disaster-orange/10 px-4 py-2 rounded-full mb-4">

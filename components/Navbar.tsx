@@ -28,6 +28,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 flex items-center justify-center relative">
               <Image
+                priority
                 src="/assets/logo-bpbd.png"
                 fill
                 alt="logo bpbd"

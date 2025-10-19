@@ -7,14 +7,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-disaster-orange rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">BP</span>
-              </div>
               <div>
-                <h3 className="text-lg font-bold">BPBD</h3>
-                <p className="text-sm text-gray-400">
-                  Badan Penanggulangan Bencana Daerah
-                </p>
+                <h3 className="text-lg font-bold">BPBD Kota Kupang</h3>
               </div>
             </div>
             <p className="text-gray-400 text-sm">
@@ -26,18 +20,16 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Layanan Darurat</h4>
             <div className="space-y-2 text-sm text-gray-400">
-              <p>Call Center: 112</p>
-              <p>Hotline BPBD: (021) 123-4567</p>
-              <p>Email: info@bpbd.go.id</p>
+              <p>Call Center BPBD: +6281239940976</p>
             </div>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-4">Alamat Kantor</h4>
             <div className="space-y-2 text-sm text-gray-400">
-              <p>Jl. Pahlawan No. 123</p>
-              <p>Kota Kupang, Provinsi NTT, Indonesia</p>
-              <p>Kode Pos: 12345</p>
+              <p>Jalan Sam Ratulangi III, Nomor 7, Kelapa Lima,</p>
+              <p>Kota Kupang, Nusa Tenggara Timur, Indonesia</p>
+              <p>Kode Pos: 85228</p>
             </div>
           </div>
         </div>
