@@ -170,3 +170,13 @@ model Kejadian {
 
   @@map("kejadian")
 }
+
+model Cuaca {
+  id              String   @id @default(cuid())
+  namaPrakiraan   String
+  fotoUrl         String?
+  tanggalUpdate   DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("cuaca")
+}

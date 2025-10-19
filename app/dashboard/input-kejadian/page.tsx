@@ -702,10 +702,11 @@ export default function InputKejadianPage({
                 >
                   {initialData ? "Batalkan Perubahan" : "Reset Form"}
                 </Button>
+
                 <Button
                   type="submit"
                   disabled={form.formState.isSubmitting}
-                  className="bg-disaster-orange"
+                  className="bg-disaster-orange hover:bg-disaster-orange-dark"
                 >
                   {form.formState.isSubmitting && (
                     <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />

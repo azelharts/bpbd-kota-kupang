@@ -23,7 +23,7 @@ export default function DashboardNavbar({
   onToggleSidebar,
 }: DashboardNavbarProps) {
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-[100]">
+    <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-[100] print:hidden">
       <div className="max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -57,7 +57,7 @@ export default function DashboardNavbar({
             <Button
               variant="ghost"
               onClick={onLogout}
-              className="flex items-center space-x-2 text-gray-700 hover:text-disaster-orange hover:bg-disaster-orange/10"
+              className="flex items-center space-x-2 text-gray-700 transition hover:text-disaster-orange hover:bg-disaster-orange/10"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>

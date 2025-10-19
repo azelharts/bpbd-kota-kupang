@@ -1,5 +1,26 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Cloud, UploadCloud, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,68 +29,136 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Cloud, Droplets, Eye, Thermometer, Wind } from "lucide-react";
-import React, { useState } from "react";
+import { CuacaFormValues, cuacaSchema } from "@/lib/schemas/cuaca-schema";
+import { useRouter } from "next/navigation";
 
-export default function UpdateCuacaPage() {
-  const [formData, setFormData] = useState({
-    tanggal: "",
-    suhuMax: "",
-    suhuMin: "",
-    kelembaban: "",
-    kecepatanAngin: "",
-    arahAngin: "",
-    tekananUdara: "",
-    kondisiCuaca: "",
-    visibility: "",
-    uvIndex: "",
+export default function UpdateCuacaPage({
+  initialData,
+}: { initialData?: any } = {}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [existingDataId, setExistingDataId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const form = useForm<CuacaFormValues>({
+    resolver: zodResolver(cuacaSchema),
+    defaultValues: {
+      namaPrakiraan: "",
+    },
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  // Load existing cuaca data on mount
+  useEffect(() => {
+    const loadCuacaData = async () => {
+      try {
+        const response = await fetch("/api/cuaca");
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.namaPrakiraan) {
+            setExistingDataId(data.id);
+            form.reset({
+              namaPrakiraan: data.namaPrakiraan,
+            });
+            if (data.fotoUrl) {
+              setPreviewUrl(data.fotoUrl);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading cuaca data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    loadCuacaData();
+  }, [form]);
+
+  // Set initial preview if editing existing data
+  useEffect(() => {
+    if (initialData?.fotoUrl) {
+      setPreviewUrl(initialData.fotoUrl);
+    }
+  }, [initialData]);
+
+  // Handle file selection and preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    }, 1500);
+  // Clear image preview
+  const clearImage = () => {
+    setFile(null);
+    setPreviewUrl("");
   };
 
-  const kondisiCuacaList = [
-    "Cerah",
-    "Berawan",
-    "Hujan Ringan",
-    "Hujan Sedang",
-    "Hujan Lebat",
-    "Badai",
-    "Kabut",
-  ];
+  async function onSubmit(values: CuacaFormValues) {
+    try {
+      const body = new FormData();
+      body.append("namaPrakiraan", values.namaPrakiraan);
 
-  const arahAnginList = [
-    "Utara",
-    "Timur Laut",
-    "Timur",
-    "Tenggara",
-    "Selatan",
-    "Barat Daya",
-    "Barat",
-    "Barat Laut",
-  ];
+      if (file) {
+        body.append("foto", file);
+      }
+
+      // Use PUT if data exists, POST if creating new
+      const method = existingDataId ? "PUT" : "POST";
+
+      const response = await fetch("/api/cuaca", {
+        method,
+        body,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Gagal menyimpan data cuaca");
+      }
+
+      const result = await response.json();
+
+      toast.success(
+        existingDataId
+          ? "Data cuaca berhasil diperbarui!"
+          : "Data cuaca berhasil dibuat!"
+      );
+
+      // Set the existing data ID for future updates
+      if (result.data?.id) {
+        setExistingDataId(result.data.id);
+      }
+
+      // Reset file state but keep form data
+      setFile(null);
+
+      // Update preview with new image URL if provided
+      if (result.data?.fotoUrl) {
+        setPreviewUrl(result.data.fotoUrl);
+      }
+
+      // Reload the page to show updated data
+      router.refresh();
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan");
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-disaster-orange"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -81,292 +170,140 @@ export default function UpdateCuacaPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbPage className="text-disaster-orange font-medium">
-            Update Data Cuaca
+            {existingDataId ? "Update" : "Buat"} Data Cuaca
           </BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="bg-disaster-orange rounded-lg p-2">
-            <Cloud className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Update Data Cuaca
-            </h1>
-            <p className="text-gray-600">
-              Formulir pembaruan data prakiraan cuaca
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {showSuccess && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-green-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
+      <Card className="!border-none !shadow-none">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <div className="bg-disaster-orange text-white p-2 rounded-lg">
+              <Cloud className="w-6 h-6" />
             </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">
-                Data cuaca berhasil diperbarui!
-              </p>
+            <div className="flex flex-col gap-y-1">
+              <span className="text-2xl font-bold text-gray-900">
+                {existingDataId ? "Update" : "Buat"} Data Cuaca
+              </span>
+              <span className="text-gray-600 font-normal">
+                Formulir {existingDataId ? "pembaruan" : "pembuatan"} data
+                prakiraan cuaca
+              </span>
             </div>
-          </div>
-        </div>
-      )}
+          </CardTitle>
+        </CardHeader>
 
-      {/* Form */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Tanggal */}
-            <div>
-              <label
-                htmlFor="tanggal"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Tanggal Prakiraan <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                id="tanggal"
-                name="tanggal"
-                value={formData.tanggal}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                required
-              />
-            </div>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Data Prakiraan Cuaca</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="namaPrakiraan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Nama Prakiraan <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan nama prakiraan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            {/* Kondisi Cuaca */}
-            <div>
-              <label
-                htmlFor="kondisiCuaca"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Kondisi Cuaca <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="kondisiCuaca"
-                name="kondisiCuaca"
-                value={formData.kondisiCuaca}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                required
-              >
-                <option value="">Pilih kondisi cuaca</option>
-                {kondisiCuacaList.map((kondisi) => (
-                  <option key={kondisi} value={kondisi}>
-                    {kondisi}
-                  </option>
-                ))}
-              </select>
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="foto"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Foto Prakiraan</FormLabel>
+                        <FormControl>
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                              <Label className="cursor-pointer">
+                                <div className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-accent">
+                                  <UploadCloud className="w-4 h-4" />
+                                  <span>Pilih file</span>
+                                </div>
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  className="sr-only"
+                                  onChange={handleFileChange}
+                                />
+                              </Label>
+                              {file && <Badge>{file.name}</Badge>}
+                            </div>
 
-            {/* Suhu Maksimum */}
-            <div>
-              <label
-                htmlFor="suhuMax"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Suhu Maksimum (°C)
-              </label>
-              <div className="relative">
-                <Thermometer className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  id="suhuMax"
-                  name="suhuMax"
-                  value={formData.suhuMax}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="35"
-                />
+                            {/* Image Preview */}
+                            {previewUrl && (
+                              <div className="relative w-full max-w-md">
+                                <img
+                                  src={previewUrl}
+                                  alt="Preview"
+                                  className="w-full h-auto rounded-lg border shadow-sm"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2"
+                                  onClick={clearImage}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Maks. 5 MB (jpg/png/gif)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <div className="flex justify-end flex-wrap gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    form.reset();
+                    setFile(null);
+                    // Don't clear previewUrl on reset - keep existing image visible
+                  }}
+                >
+                  Reset Form
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="bg-disaster-orange hover:bg-disaster-orange-dark"
+                >
+                  {form.formState.isSubmitting && (
+                    <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                  )}
+                  {existingDataId ? "Perbarui" : "Simpan"} Data
+                </Button>
               </div>
-            </div>
-
-            {/* Suhu Minimum */}
-            <div>
-              <label
-                htmlFor="suhuMin"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Suhu Minimum (°C)
-              </label>
-              <div className="relative">
-                <Thermometer className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  id="suhuMin"
-                  name="suhuMin"
-                  value={formData.suhuMin}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="25"
-                />
-              </div>
-            </div>
-
-            {/* Kelembaban */}
-            <div>
-              <label
-                htmlFor="kelembaban"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Kelembaban (%)
-              </label>
-              <div className="relative">
-                <Droplets className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  id="kelembaban"
-                  name="kelembaban"
-                  value={formData.kelembaban}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="75"
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-
-            {/* Kecepatan Angin */}
-            <div>
-              <label
-                htmlFor="kecepatanAngin"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Kecepatan Angin (km/jam)
-              </label>
-              <div className="relative">
-                <Wind className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  id="kecepatanAngin"
-                  name="kecepatanAngin"
-                  value={formData.kecepatanAngin}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="15"
-                />
-              </div>
-            </div>
-
-            {/* Arah Angin */}
-            <div>
-              <label
-                htmlFor="arahAngin"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Arah Angin
-              </label>
-              <select
-                id="arahAngin"
-                name="arahAngin"
-                value={formData.arahAngin}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-              >
-                <option value="">Pilih arah angin</option>
-                {arahAnginList.map((arah) => (
-                  <option key={arah} value={arah}>
-                    {arah}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Tekanan Udara */}
-            <div>
-              <label
-                htmlFor="tekananUdara"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Tekanan Udara (hPa)
-              </label>
-              <input
-                type="number"
-                id="tekananUdara"
-                name="tekananUdara"
-                value={formData.tekananUdara}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                placeholder="1013"
-              />
-            </div>
-
-            {/* Visibility */}
-            <div>
-              <label
-                htmlFor="visibility"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Jarak Pandang (km)
-              </label>
-              <div className="relative">
-                <Eye className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  id="visibility"
-                  name="visibility"
-                  value={formData.visibility}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                  placeholder="10"
-                />
-              </div>
-            </div>
-
-            {/* UV Index */}
-            <div>
-              <label
-                htmlFor="uvIndex"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                UV Index
-              </label>
-              <input
-                type="number"
-                id="uvIndex"
-                name="uvIndex"
-                value={formData.uvIndex}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-disaster-orange focus:border-transparent"
-                placeholder="7"
-                min="0"
-                max="11"
-              />
-            </div>
-          </div>
-
-          {/* ---------- Actions ---------- */}
-          <div className="flex justify-end flex-wrap gap-4">
-            <Button type="button" variant="outline" onClick={() => {}}>
-              Reset Form
-            </Button>
-            <Button type="submit" className="bg-disaster-orange">
-              {/* {form.formState.isSubmitting && (
-                <span className="mr-2 w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full" />
-              )} */}
-              Simpan Data
-            </Button>
-          </div>
-        </form>
-      </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
