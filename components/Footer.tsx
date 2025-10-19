@@ -36,7 +36,7 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">Alamat Kantor</h4>
             <div className="space-y-2 text-sm text-gray-400">
               <p>Jl. Pahlawan No. 123</p>
-              <p>Kota Provinsi, Indonesia</p>
+              <p>Kota Kupang, Provinsi NTT, Indonesia</p>
               <p>Kode Pos: 12345</p>
             </div>
           </div>
