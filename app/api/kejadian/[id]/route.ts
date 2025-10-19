@@ -1,26 +1,28 @@
 // app/api/kejadian/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { destroyFromCloudinary } from "@/lib/cloudinary";
 
-/* ---------- GET single kejadian ---------- */
+// GET - Fetch single kejadian data
 export async function GET(
   _: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const row = await prisma.kejadian.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+  const row = await prisma.kejadian.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(row);
 }
 
-/* ---------- PUT update kejadian ---------- */
+// PUT - Edit single kejadian data
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const formData = await req.formData();
 
-  // reuse the same parsing you already have in POST
   const nama = JSON.parse(formData.get("nama") as string);
   const jenis = JSON.parse(formData.get("jenis") as string);
   const kecamatan = JSON.parse(formData.get("kecamatan") as string);
@@ -53,15 +55,15 @@ export async function PUT(
     layanan: (formData.get("layanan") as string) || null,
   };
 
-  // add every numeric field
+  // Add every numeric field
   numericFields.forEach((f) => (data[f] = formData.get(f) as string) || null);
 
-  // handle new photo if uploaded
+  // Handle new photo if uploaded
   const foto = formData.get("foto") as File | null;
   if (foto) {
     // Fetch existing record to get current fotoUrl
     const existing = await prisma.kejadian.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { fotoUrl: true },
     });
 
@@ -75,32 +77,34 @@ export async function PUT(
   }
 
   const updated = await prisma.kejadian.update({
-    where: { id: params.id },
+    where: { id },
     data,
   });
 
   return NextResponse.json(updated);
 }
 
-/* ---------- DELETE ---------- */
+// DELETE - delete single kejadian data
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const row = await prisma.kejadian.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { fotoUrl: true },
   });
 
-  /* 1. delete image from Cloudinary if exists */
+  // Delete image from Cloudinary if exists
   if (row?.fotoUrl) await destroyFromCloudinary(row.fotoUrl);
 
-  /* 2. delete record from DB */
-  await prisma.kejadian.delete({ where: { id: params.id } });
+  // Delete record from DB
+  await prisma.kejadian.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
 }
 
-/* ---------- helpers ---------- */
+// Helpers
 import { numericFields } from "@/constants/kejadian";
 import { uploadToCloudinary } from "@/lib/cloudinary";

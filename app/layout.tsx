@@ -1,16 +1,17 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Inter } from "next/font/google";
 
-import "./globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "BPBD - Badan Penanggulangan Bencana Daerah",
   description:
-    "Website resmi Badan Penanggulangan Bencana Daerah untuk informasi dan penanggulangan bencana",
+    "Website resmi Badan Penanggulangan Bencana Daerah untuk informasi dan penanggulangan bencana Kota Kupang",
   keywords:
     "bencana, tanggap darurat, BPBD, kupang, kota kupang, ntt, nusa tenggara timur, penanggulangan bencana, alam",
 };

@@ -1,10 +1,13 @@
+// components/DashboardSidebar.tsx
+
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, Cloud, LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
+
+import { Cloud, FileText, Home, LucideIcon } from "lucide-react";
 
 interface MenuItem {
   name: string;

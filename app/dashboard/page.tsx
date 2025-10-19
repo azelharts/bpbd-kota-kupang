@@ -1,4 +1,10 @@
+// app/dashboard/page.tsx
+
 "use client";
+
+import { useEffect, useState } from "react";
+
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,9 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Cloud, FileText } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
 
 type Latest = { id: string; nama: string[]; createdAt: string };
 
@@ -44,8 +49,8 @@ export default function DashboardHome() {
     },
     {
       title: "Data Prakiraan Cuaca",
-      value: "7",
-      description: "Hari prakiraan cuaca aktif",
+      value: "1",
+      description: "Update data prakiraan cuaca",
       icon: Cloud,
       color: "bg-disaster-orange",
       href: "/dashboard/update-cuaca",
@@ -124,7 +129,7 @@ export default function DashboardHome() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Aktivitas Terbaru</CardTitle>
+          <CardTitle>Aktivitas Kejadian Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

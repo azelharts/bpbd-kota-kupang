@@ -1,13 +1,19 @@
+// app/login/page.tsx
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
+
+import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock, User, LogIn } from "lucide-react";
-import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import Link from "next/link";
+
+import { Lock, LogIn, User } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();

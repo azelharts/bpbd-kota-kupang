@@ -1,9 +1,9 @@
+// app/dashboard/update-cuaca/page.tsx
+
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Cloud, UploadCloud, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,12 +27,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { CuacaFormValues, cuacaSchema } from "@/lib/schemas/cuaca-schema";
-import { useRouter } from "next/navigation";
 
-export default function UpdateCuacaPage({
-  initialData,
-}: { initialData?: any } = {}) {
+import { CuacaFormValues, cuacaSchema } from "@/lib/schemas/cuaca-schema";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Cloud, UploadCloud, X } from "lucide-react";
+
+import { toast } from "sonner";
+import Image from "next/image";
+import { Cuaca } from "@prisma/client";
+
+export default function UpdateCuacaPage() {
+  const [initialData, setInitialData] = useState<Cuaca>();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +61,7 @@ export default function UpdateCuacaPage({
         const response = await fetch("/api/cuaca");
         if (response.ok) {
           const data = await response.json();
+          setInitialData(data);
           if (data && data.namaPrakiraan) {
             setExistingDataId(data.id);
             form.reset({
@@ -246,11 +253,12 @@ export default function UpdateCuacaPage({
 
                             {/* Image Preview */}
                             {previewUrl && (
-                              <div className="relative w-full max-w-md">
-                                <img
+                              <div className="relative w-full h-[400px]">
+                                <Image
+                                  fill
                                   src={previewUrl}
                                   alt="Preview"
-                                  className="w-full h-auto rounded-lg border shadow-sm"
+                                  className="rounded-lg shadow-sm object-cover"
                                 />
                                 <Button
                                   type="button"

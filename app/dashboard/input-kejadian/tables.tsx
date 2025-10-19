@@ -1,6 +1,9 @@
-// components/kejadian/tables.tsx
+// aop/dashboard/input-kejadian/tables.tsx
+
 import { Input } from "@/components/ui/input";
+
 import { UseFormReturn } from "react-hook-form";
+
 import { FormValues } from "@/lib/schemas/kejadian-schema";
 
 export function ManusiaTable({ form }: { form: UseFormReturn<FormValues> }) {

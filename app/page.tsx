@@ -1,7 +1,9 @@
-import Navbar from "@/components/Navbar";
-import HeroCarousel from "@/components/HeroCarousel";
-import WeatherForecast from "@/components/WeatherForecast";
+// app/page.tsx
+
 import Footer from "@/components/Footer";
+import HeroCarousel from "@/components/HeroCarousel";
+import Navbar from "@/components/Navbar";
+import WeatherForecast from "@/components/WeatherForecast";
 
 import { User } from "lucide-react";
 

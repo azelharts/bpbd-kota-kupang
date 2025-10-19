@@ -1,10 +1,14 @@
+// components/WeatherForecast
+
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
+import Image from "next/image";
+
+import { Cuaca } from "@prisma/client";
 
 import { Thermometer } from "lucide-react";
-import { Cuaca } from "@prisma/client";
-import Image from "next/image";
 
 export default function WeatherForecast() {
   const [weatherData, setWeatherData] = useState<Cuaca>();

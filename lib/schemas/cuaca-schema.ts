@@ -1,3 +1,5 @@
+// lib/schemas/cuaca-schema.ts
+
 import { z } from "zod";
 
 export const cuacaSchema = z.object({

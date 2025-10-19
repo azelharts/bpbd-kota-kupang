@@ -1,3 +1,5 @@
+// components/HeroCarousel.tsx
+
 "use client";
 
 import { useCallback, useEffect, useState } from "react";

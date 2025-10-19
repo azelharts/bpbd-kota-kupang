@@ -1,8 +1,12 @@
+// app/dashboard/layout.tsx
+
 "use client";
 
 import React, { useState } from "react";
+
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+
 import DashboardNavbar from "@/components/DashboardNavbar";
 import DashboardSidebar from "@/components/DashboardSidebar";
 

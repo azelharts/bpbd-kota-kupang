@@ -226,5 +226,5 @@ export const numericFields = [
 ];
 
 export const numericDefaults = Object.fromEntries(
-  numericFields.map((k) => [k, 0])
+  numericFields.map((k) => [k, "0"])
 );

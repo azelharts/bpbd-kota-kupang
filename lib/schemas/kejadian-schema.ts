@@ -1,10 +1,16 @@
 // lib/schemas/kejadian-schema.ts
+
 import { z } from "zod";
 import { numericFields } from "@/constants/kejadian";
 
-const numeric = z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), {
-  message: "Harus angka",
-});
+const numeric = z
+  .union([z.string(), z.number()])
+  .pipe(
+    z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), {
+      message: "Harus angka",
+    })
+  )
+  .transform((v) => String(v));
 
 /* ---------- base shape that contains every field that exists in the DB ---------- */
 const baseSchema = z.object({
@@ -27,9 +33,7 @@ const baseSchema = z.object({
   sebaran: z.string().min(1, "Sebaran dampak wajib diisi"),
   foto: z.instanceof(File).optional(),
   kib: z.string().min(1, "KIB wajib diisi"),
-  dana: z
-    .number({ error: "Dana harus berupa angka" })
-    .min(1, "Dana wajib diisi"),
+  dana: z.coerce.number({ error: "Dana harus berupa angka" }),
   sdm: z.string().min(1, "SDM wajib diisi"),
   sarpras: z.string().min(1, "Sarana-prasarana wajib diisi"),
   logistik: z.string().min(1, "Logistik wajib diisi"),
@@ -45,4 +49,4 @@ export const formSchema = baseSchema.extend(
   >
 );
 
-export type FormValues = z.infer<typeof formSchema>;
+export type FormValues = z.input<typeof formSchema>;

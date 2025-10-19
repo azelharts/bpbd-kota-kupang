@@ -1,10 +1,14 @@
+// components/Navbar.tsx
+
 "use client";
 
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { Menu, X, User } from "lucide-react";
 import { useState } from "react";
+
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
+
+import { Menu, User, X } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();

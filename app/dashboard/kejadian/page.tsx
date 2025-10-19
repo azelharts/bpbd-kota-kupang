@@ -1,9 +1,19 @@
+// app/dashboard/kejadian/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { Eye, Edit, Trash2, Plus } from "lucide-react";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,15 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { format } from "date-fns";
+
 import { toast } from "sonner";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
+import { Edit, Plus, Trash2 } from "lucide-react";
 
 type Kejadian = {
   id: string;
